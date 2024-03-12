@@ -1,0 +1,99 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+  <!-- container -->
+  <div class="container">
+    <!-- row -->
+    <div class="row">
+      <div class="col-md-12">
+        <!-- <h3 class="breadcrumb-header">MY Account</h3> -->
+        <ul class="breadcrumb-tree">
+          <li><a href="{% url 'index' %}">Home</a></li>
+          <li class="active">My Account</li>
+        </ul>
+      </div>
+    </div>
+    <!-- /row -->
+  </div>
+  <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+{% if messages %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    {% for message in messages %}
+    var messageDiv = document.createElement('div');
+    messageDiv.className = 'popup-message ' + '{{ message.tags }}';
+    messageDiv.innerHTML = '{{ message }}';
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(function () {
+      document.body.removeChild(messageDiv);
+    }, 5000);
+    {% endfor %}
+  });
+</script>
+{% endif %}
+
+<!-- SECTION -->
+<div class="section">
+  <!-- container -->
+  <div class="container">
+    <!-- row -->
+    <div class="row">
+      <div class="col-md-6">
+        <!-- Signup
+                         -->
+        <div class="billing-details">
+          <div class="section-title">
+            <h3 class="title">Register</h3>
+          </div>
+          <form action="{% url 'signup' %}" method="post" class="form-group">
+            {% csrf_token %}
+            <div class="form-group">
+              <input class="input" type="email" name="email" placeholder="Email" required />
+            </div>
+
+            <div class="form-group">
+              <input class="input" type="password" name="password" placeholder="Password" required />
+            </div>
+            <div class="form-group">
+              <input class="input" type="password" name="cpassword" placeholder="Confirm Password" required />
+            </div>
+
+            <input class="primary-btn order-submit" type="submit" value="Register" />
+          </form>
+        </div>
+        <!--Signup
+                         -->
+      </div>
+
+      <!-- login -->
+      <div class="col-md-6 order-details">
+        <div class="section-title text-center">
+          <h3 class="title">Login</h3>
+        </div>
+        <form action="{% url 'login' %}" method="post">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <input class="input" type="text" name="email" placeholder="Email" required />
+          </div>
+
+          <div class="form-group">
+            <input class="input" type="password" name="password" placeholder="Enter your password" required />
+          </div>
+          <input type="submit" class="primary-btn order-submit" value="Login" />
+        </form>
+      </div>
+      <!-- /login -->
+    </div>
+    <!-- /row -->
+  </div>
+  <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+{% endblock content %}

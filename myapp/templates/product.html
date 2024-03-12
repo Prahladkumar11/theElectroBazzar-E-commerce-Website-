@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li ><a href="">Categories</a></li>
+                    <li class="active">{{item}}</li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+
+{% if products %}
+<div class="section">
+    <div class="container" >
+        <div class="row">
+            {% for product in products %}
+            <!-- Product -->
+            <div class="col-md-3 col-xs-6">
+                <div class="product" >
+                    <div class="product-img" >
+                        <img src="{{ product.image.0}}"  alt="" style="height: 200px;">
+                        <!-- Add your product image source here -->
+                        <div class="product-label" >
+                            {% if product.discount %}
+                            <span class="sale">-{{ product.discount }}%</span>
+                            {% endif %}
+                            {% if product.is_new %}
+                            <span class="new">NEW</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-body"  >
+                        <p class="product-category">{{ product.category }}</p>
+                        <h3 class="product-name" style="height: 150px;"><a href="#">{{ product.name|slice:":250" }}</a></h3>
+                        <h4 class="product-price">₹ <script>formattedPrice({{ product.discounted_price }}) </script>{% if product.discount %}<del class="product-old-price">  <script>formattedPrice({{ product.price }})</script></del>{% endif %} </h4>
+                        <div class="product-rating">
+                            {% for _ in product.stars %}
+                            <i class="fa fa-star"></i>
+                            {% endfor %}
+                            {% for _ in product.empty_stars %}
+                            <i class="fa fa-star-o"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="product-btns">
+                            <button class="add-to-wishlist"><a href="{% url 'addtowishlist' product.id %}"><i class="fa fa-heart-o fa-lg"></i></a><span class="tooltipp">add to wishlist</span></button>
+                            <button class="add-to-compare hidden"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+                            <button class="quick-view"><i class="fa fa-eye fa-lg"></i><span class="tooltipp">quick view</span></button>
+                        </div>
+                    </div>
+                    <div class="add-to-cart">
+                            <button  class="add-to-cart-btn" data-product-id="{{ product.id }}"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /Product -->
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+
+    
+{% endblock content %}

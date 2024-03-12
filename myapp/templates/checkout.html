@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+	
+
+		<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<ul class="breadcrumb-tree">	
+							<li><a href="#">Home</a></li>
+							<li class="active">Checkout</li>
+						</ul>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+		
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<form id="orderForm" action="{% url 'placeorder' %}" method="post" onsubmit="submitForm(event)">
+						{% csrf_token %}
+						<div class="col-md-7">
+							<!-- Billing Details -->
+							<div class="billing-details">
+								<div class="section-title">
+									<h3 class="title">Billing address</h3>
+								</div>
+							<!-- avaiable Billing Details -->
+							<div class="addressbox col">
+								<div class="row">
+									{% for address in billingAddress %}
+									<div class="col-md-6">
+										<div class="box"  data-address-type="billing"  data-first-name="{{ address.first_name }}" data-last-name="{{ address.last_name }}" data-email="{{ address.email }}" data-address="{{ address.address }}" data-city="{{ address.city }}" data-state="{{ address.state }}" data-country="{{ address.country }}" data-pincode="{{ address.pincode }}">
+											<strong>{{ address.first_name }} {{ address.last_name }}</strong>
+											{{ address.email }}
+											<br>
+											{{ address.address }},{{ address.city }},{{ address.state }},{{ address.country }}-{{ address.pincode }}
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+							</div>
+
+								
+							<!-- /Billing Details -->
+
+								
+								<div class="form-group">
+									<input class="input" type="text" name="first-name" placeholder="First Name">
+								</div>
+								<div class="form-group">
+									<input class="input" type="text" name="last-name" placeholder="Last Name">
+								</div>
+								<div class="form-group">
+									<input class="input" type="email" name="email" placeholder="Email">
+								</div>
+								<div class="form-group">
+									<input class="input" type="text" name="address" placeholder="Address">
+								</div>
+								<div class="form-group">
+									<input class="input" type="text" name="city" placeholder="City">
+								</div>
+								<div class="form-group">
+									<input class="input" type="text" name="state" placeholder="State">
+								</div>
+								<div class="form-group">
+									<input class="input" type="text" name="country" placeholder="Country">
+								</div>
+								<div class="form-group">
+									<input class="input" type="text" name="pincode" placeholder="ZIP Code">
+								</div>
+								
+							</div>
+							<!-- /Billing Details -->
+
+							<!-- Shiping Details -->
+							<div class="shiping-details">
+								<div class="section-title">
+									<h3 class="title">Shiping address</h3>
+								</div>
+								<div class="input-checkbox">
+									<input type="checkbox" id="shiping-address" name="shiping-address">
+									<label for="shiping-address">
+										<span></span>
+										Ship to a diffrent address?
+									</label>
+									<div class="caption">
+										<!-- avaiable Billing Details -->
+							<div class="addressbox col">
+								<div class="row">
+									{% for address in shippingAddresses %}
+									<div class="col-md-6">
+										<div class="box"  data-address-type="shipping"  data-first-name="{{ address.first_name }}" data-last-name="{{ address.last_name }}" data-email="{{ address.email }}" data-address="{{ address.address }}" data-city="{{ address.city }}" data-state="{{ address.state }}" data-country="{{ address.country }}" data-pincode="{{ address.pincode }}">
+											<strong>{{ address.first_name }} {{ address.last_name }}</strong>
+											{{ address.email }}
+											<br>
+											{{ address.address }},{{ address.city }},{{ address.state }},{{ address.country }}-{{ address.pincode }}
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+							</div>
+
+								
+							<!-- /Billing Details -->
+										<div class="form-group">
+											<input class="input" type="text" name="s-first-name" placeholder="First Name">
+										</div>
+										<div class="form-group">
+											<input class="input" type="text" name="s-last-name" placeholder="Last Name">
+										</div>
+										<div class="form-group">
+											<input class="input" type="email" name="s-email" placeholder="Email">
+										</div>
+										<div class="form-group">
+											<input class="input" type="text" name="s-address" placeholder="Address">
+										</div>
+										<div class="form-group">
+											<input class="input" type="text" name="s-city" placeholder="City">
+										</div>
+										<div class="form-group">
+											<input class="input" type="text" name="s-state" placeholder="State">
+										</div>
+										<div class="form-group">
+											<input class="input" type="text" name="s-country" placeholder="Country">
+										</div>
+										<div class="form-group">
+											<input class="input" type="text" name="s-pincode" placeholder="ZIP Code">
+										</div>
+										
+									</div>
+								</div>
+							</div>
+							<!-- /Shiping Details -->
+
+							<!-- Order notes -->
+							<div class="order-notes">
+								<textarea class="input" placeholder="Order Notes"></textarea>
+							</div>
+							<!-- /Order notes -->
+						</div>
+
+						<!-- Order Details -->
+						<div class="col-md-5 order-details">
+							<div class="section-title text-center">
+								<h3 class="title">Your Order</h3>
+							</div>
+							<div class="order-summary">
+								<div class="order-col">
+									<div><strong>PRODUCT</strong></div>
+									<div><strong>TOTAL</strong></div>
+								</div>
+								<div class="order-products">
+									{% for item in items  %}
+									<div class="order-col">
+											
+										<div>{{item.quantity}}x {{item.product.name|slice:":20"}}</div>
+										<div><script> formattedPrice({{item.product.discounted_price}})</script></div>
+									</div>
+									{% endfor %}
+									
+								</div>
+								<div class="order-col">
+									<div>Shiping</div>
+									<div><strong>FREE</strong></div>
+								</div>
+								
+								<div class="order-col">
+									<div><strong>Total</strong></div>
+									<div><strong class="order-total">₹ <script>formattedPrice({{ request.session.total_price }})</script></strong></div>
+								</div>
+							</div>
+							<div class="payment-method">
+								<div class="input-radio">
+									<input type="radio" name="payment" id="payment-1">
+									<label for="payment-1">
+										<span></span>
+										Direct Bank Transfer
+									</label>
+									<div class="caption">
+										<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+									</div>
+								</div>
+								<div class="input-radio">
+									<input type="radio" name="payment" id="payment-2">
+									<label for="payment-2">
+										<span></span>
+										Cheque Payment
+									</label>
+									<div class="caption">
+										<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+									</div>
+								</div>
+								<div class="input-radio">
+									<input type="radio" name="payment" id="payment-3">
+									<label for="payment-3">
+										<span></span>
+										Paypal System
+									</label>
+									<div class="caption">
+										<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+									</div>
+								</div>
+							</div>
+							<div class="input-checkbox">
+								<input type="checkbox" id="terms">
+								<label for="terms">
+									<span></span>
+									I've read and accept the <a href="#">terms & conditions</a>
+								</label>
+							</div>
+							<div>
+								<button type="submit" class="primary-btn order-submit">Place order</button>
+							</div>
+						</div>
+						<!-- /Order Details -->
+					</form>
+
+					<!-- Popup message -->
+
+					<div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="resultImage" alt="" height="100px">
+                <br><br>
+                <p id="resultMessage"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitForm(event) {
+        event.preventDefault();  // Prevent the default form submission
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'placeorder' %}",
+            data: $("#orderForm").serialize(),
+            success: function (data) {
+                $("#resultModalLabel").text(data.status.charAt(0).toUpperCase() + data.status.slice(1));
+                $("#resultMessage").text(data.message);
+                $("#resultImage").attr("src", data.status === "success" ? "{% static 'img/success.png' %}" : "{% static 'img/cancel.png' %}");
+                $("#resultModal").modal('show');
+				if (data.status==='success'){
+                setTimeout(function () {
+                    window.location.href = "{% url 'index' %}";
+                }, 5000);}
+				else{
+					setTimeout(function () {
+						window.location.reload()
+					}, 3000)
+				}
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+</script>
+
+					
+
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+		
+<!-- Script to handle address selection -->
+<script>
+    $(document).ready(function () {
+        $(".box").click(function () {
+            // Get the data attributes of the selected address
+			var addressType = $(this).data('address-type');
+            var firstName = $(this).data('first-name');
+            var lastName = $(this).data('last-name');
+            var email = $(this).data('email');
+            var address = $(this).data('address');
+            var city = $(this).data('city');
+            var state = $(this).data('state');
+            var country = $(this).data('country');
+            var pincode = $(this).data('pincode');
+			if (addressType === 'shipping') {
+				// Handle billing address
+				$("input[name='s-first-name']").val(firstName);
+				$("input[name='s-last-name']").val(lastName);
+				$("input[name='s-email']").val(email);
+				$("input[name='s-address']").val(address);
+				$("input[name='s-city']").val(city);
+				$("input[name='s-state']").val(state);
+				$("input[name='s-country']").val(country);
+				$("input[name='s-pincode']").val(pincode);
+			} else if (addressType === 'billing') {
+				// Handle shipping address
+				$("input[name='first-name']").val(firstName);
+				$("input[name='last-name']").val(lastName);
+				$("input[name='email']").val(email);
+				$("input[name='address']").val(address);
+				$("input[name='city']").val(city);
+				$("input[name='state']").val(state);
+				$("input[name='country']").val(country);
+				$("input[name='pincode']").val(pincode);
+			}
+		
+            // Fill the billing form with the selected address data
+            
+        });
+    });
+</script>
+{% endblock content %}
