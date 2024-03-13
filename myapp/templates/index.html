@@ -35,8 +35,8 @@
 				<!-- row -->
 				<div class="row">
 
-					{% if cat %}
-					{% for Category in cat %}
+					{% if data.categorys %}
+					{% for Category in data.categorys %}
 					<!-- shop -->
 					<a href="{% url 'products' Category.name %}">
 						<div class="col-md-3 col-xs-6">
@@ -91,8 +91,8 @@
 									<div class="products-slick" data-nav="#slick-nav-1">
 										
 
-									{% if products %}
-									{% for product in products|slice:":10"  %}
+									{% if data.products %}
+									{% for product in data.products|slice:":10"  %}
 										{% if product.is_new %}
 											<!-- product -->
 											<div class="product">

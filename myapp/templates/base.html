@@ -73,8 +73,9 @@
               <form>
                 <select class="input-select">
                   <option value="0">All Categories</option>
-                  <option value="1">Category 01</option>
-                  <option value="1">Category 02</option>
+                  {% for cat in data.categorys %}
+                    <option value="{{cat.id}}">{{cat.name}}</option>
+                  {% endfor %}
                 </select>
                 <input class="input" placeholder="Search here" />
                 <button class="search-btn">Search</button>
@@ -91,7 +92,7 @@
                 <a href="{% url 'wishlist' %}">
                   <i class="fa fa-heart-o"></i>
                   <span>Your Wishlist</span>
-                  <div class="qty">{{request.session.wishlist_count}}</div>
+                  <div class="qty">{{data.wishlist|length}}</div>
                 </a>
               </div>
               <!-- /Wishlist -->
@@ -102,17 +103,17 @@
                 <a class="cart-dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                   <i class="fa fa-shopping-cart"></i>
                   <span>Your Cart</span>
-                  <div class="qty">{{ request.session.total_item }}</div>
+                  <div class="qty">{{ data.total_item }}</div>
                 </a>
                 <div class="cart-dropdown">
                   <div class="cart-list">
                     <!-- Cart items will be dynamically added here -->
                   </div>
-                  {% if request.session.total_item %}
+                  {% if data.total_item %}
                   <div class="cart-summary">
-                    <small>{{ request.session.cart_items|length }} Item(s) selected</small>
+                    <small>{{ data.cart_items|length }} Item(s) selected</small>
                     <h5>SUBTOTAL: ₹
-                      <script>formattedPrice({{ request.session.total_price }})</script>
+                      <script>formattedPrice({{ data.total_price }})</script>
                     </h5>
                   </div>
                   <div class="cart-btns">
@@ -405,7 +406,8 @@
             } else {
               // Handle error (optional)
 
-              alert('Error: ' + data.message);
+              alert(data.message);
+              window.location.href='{% url 'signup' %}'
             }
           },
           error: function (error) {

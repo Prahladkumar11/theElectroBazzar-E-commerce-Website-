@@ -8,54 +8,10 @@ from django.http import JsonResponse
 from .models import *
 
 
-def index(request):
-    
-    if request.user.is_authenticated:
-        try:
-            active_cart = Cart.objects.get(user=request.user)
-        except Cart.DoesNotExist:
-            # Create a new cart if it doesn't exist
-            active_cart = Cart.objects.create(user=request.user)
-        wishlist=Wishlist.objects.filter(user=request.user)
-       
-        # Fetch cart items for the user's cart
-        cart_items = Cart_item.objects.filter(cart=active_cart)
+def index(request):      
+    return render(request,'index.html')
 
-        total_price = sum(item.product.discounted_price * item.quantity for item in cart_items)
-        total_item=sum(item.quantity for item in cart_items)
-    else:
-        # For non-authenticated users, set empty values
-        active_cart = None
-        cart_items = []
-        wishlist = []
-        total_price = 0
-        total_item = 0
-    
-    
-    request.session['wishlist_count']   = len(wishlist)
-    request.session['total_item']=total_item
-    request.session['total_price']=total_price
-    request.session['cart_items']= [
-        {
-            'id':item.product.id,
-            'product_name': item.product.name,
-            'product_price': item.product.discounted_price,
-            'quantity': item.quantity,
-            'product_image': item.product.image[0],
-        }
-        for item in cart_items
-    ]
-    
-    
-    Category=Categories.objects.all()
-    Products=Product.objects.all()
-    
-    context={
-        'cat':Category,
-        'products':Products,
-        
-    }    
-    return render(request,'index.html',context)
+
 def get_updated_cart_items(request):
     if request.user.is_authenticated:
         try:
@@ -128,12 +84,11 @@ def logoutUser(request):
 def Products(request,item):
     products=Product.objects.filter(CategoriesId__name=item)
     
-
     context={
-        'item':item,
         'products':products
     }
     return render(request,'product.html',context)
+
 
 def addToCart(request, pk):
     product = Product.objects.get(id=pk)
@@ -154,8 +109,7 @@ def addToCart(request, pk):
 
         return JsonResponse(response_data)
     else:
-        return JsonResponse({'status': 'error', 'message': 'User not authenticated'})
-
+        return JsonResponse({'status': 'error', 'message': 'Pls login first'})
 
 def removeFromCart(request, pk):
     cart = Cart.objects.get(user=request.user)
@@ -203,6 +157,7 @@ def removeFromWishlist(request, pk):
     wishlist.delete()
     index(request)
     return redirect('wishlist')
+
 
 def checkout(request):
     items= Cart_item.objects.filter(cart__user=request.user)
