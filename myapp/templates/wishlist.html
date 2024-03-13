@@ -43,9 +43,7 @@
                         </div>
                     </div>
                     <div class="add-to-cart">
-                        <a href="{% url 'additem' product.id %}">
-                            <button  class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-                        </a>
+                            <button data-product-id="{{ product.id }}"   class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
                     </div>
                 </div>
             </div>

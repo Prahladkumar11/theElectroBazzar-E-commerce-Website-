@@ -64,7 +64,6 @@ MESSAGE_TAGS = {
         messages.ERROR: 'alert-danger',
  }
 ROOT_URLCONF = 'theElectraBazzar.urls'
-TIME_ZONE = 'Asia/Kolkata'
 
 TEMPLATES = [
     {
@@ -120,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE =  'Asia/Kolkata'
 
 USE_I18N = True
 

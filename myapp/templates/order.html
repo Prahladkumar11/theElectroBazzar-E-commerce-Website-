@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-md-12 ">
             <br>
-            <h3 class=" text-center">Order Details</h3>
+            <h3 class=" section-title text-center">Order Details</h3>
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="table-responsive">
@@ -14,23 +14,21 @@
                             <thead>
                                 <tr >
                                     <th>Order Id</th>
-                                    <th>Date</th>
+                                    <th>Day & Date</th>
                                     <th>Status</th>
-                                    <th>Total</th>
+                                    <th>Amount</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for order in orderdetails %}
-                                <tr data-id="{{order.id}}" class="billing-row " >
+                                <tr data-id="{{order.orderId}}" data-time="{{ order.createdDate|date:'g:i A' }}" data-date="{{order.createdDate|date:'d-m-Y'}}"" data-amount="{{order.amount}}" data-billing-address="{{order.billingAddress}}" data-shipping-address="{{order.shippingAddress}}" class="billing-row " >
                                     <td >#{{ order.orderId }}</td>
-                                    <td >{{ order.createdDate }}</td>
+                                    <td >{{ order.createdDate|date:'D (d,M,Y)' }}</td>
                                     <td >On hold</td>
-                                    <td >₹ <strong><script>formattedPrice({{ order.amount }})</script></strong></td>
-                                    <td class=" add-to-cart" data-toggle="modal" data-target="#editModal1">
-                                            
+                                    <td >₹ <strong><script>formattedPrice({{order.amount }})</script></strong></td>
+                                    <td class=" add-to-cart" data-toggle="modal" data-target="#detailModal1">
                                             <button class="btn btn-light  bg-success"> View <i class="fa fa-eye fa-lg"></i></button>
-                                            
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -43,22 +41,145 @@
     </div>
 </div>
 
-
-<div class="modal fade" id="editModal1" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
+<div class="modal fade" id="detailModal1" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+    <div class="modal-dialog modal-lg" role="document" >
+        <div class="modal-content" style="max-height: 100vh; overflow-y: auto;">
+            <div class="modal-header section-title text-center ">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="editModalLabel">Edit Account Details</h4>
+                <h3 class=" title" >Your Order Details</h3>
             </div>
-            <div id="editUserDetailsMessage" class="mt-3"></div>
 
+            
             <div class="modal-body">
-                <!-- Add your form fields for editing here -->
-                
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="section-title text-capitalize">
+                                    <p id="orderId"></p>
+                                    <p id="Status"> <strong>Status: </strong> On hold</p>
+                                    <p id="Time"></p>
+                                    <p id="Date"></p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 order-details">
+                            <div class="section-title text-center">
+                                <h4 class="title">Order Summary</h4>
+                            </div>
+
+                            <div class="order-summary">
+                                <div class="order-col">
+                                    <div><strong>PRODUCT</strong></div>
+                                    <div><strong>TOTAL</strong></div>
+                                </div>
+
+                                <!-- Your order details here -->
+                                <div class="order-products">
+                                    
+                                </div>
+
+                                <div class="order-col">
+                                    <div>Shipping</div>
+                                    <div><strong>FREE</strong></div>
+                                </div>
+
+                                <div class="order-col">
+                                    <div><strong>Total</strong></div>
+                                    <div><strong class="order-total" id="total-amount"> </strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 order-details">
+                            <div class="section-title text-center">
+                                <h4 class="title">Billing Addres</h4>
+                            </div>
+                            <div class="address-details text-center" id="billingAddress">
+
+                            </div>
+                        </div>
+                        <div class="col-md-6 order-details">
+                            <div class="section-title text-center">
+                                <h4 class="title">Shipping Address</h4>
+                            </div>
+                            <div class="address-details text-center" id="shippingAddress">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $('.add-to-cart').on('click', function () {
+            var orderId = $(this).closest('tr').data('id');
+            var time = $(this).closest('tr').data('time');
+            var date = $(this).closest('tr').data('date');
+            var amount = $(this).closest('tr').data('amount');
+            var billingAddress = $(this).closest('tr').data('billing-address');
+            var shippingAddress = $(this).closest('tr').data('shipping-address');
+            var orderurl = '{% url 'order' id=0 %}'.replace('0', orderId);
+
+           
+
+            $.ajax({
+                type: 'GET',
+                url: orderurl,
+                data: {
+                    'orderId': orderId
+                },
+                success: function (response) {
+                    // Update the HTML container with order details
+                    updateOrderDetails(response.data,orderId,amount,date,time,billingAddress,shippingAddress);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        // Function to update the HTML container with order details
+        function updateOrderDetails(orderlines,orderId,amount,date,time,billingAddress,shippingAddress) {
+
+            
+
+            var parsedtime = new Date(time);
+            var parsedDate = new Date(date);
+
+            var orderProductsContainer = $('.order-products');
+            $('#orderId').html('<strong>OrderId: </strong> #'+ orderId);
+            
+            $('#total-amount').html('₹'+amount.toLocaleString('en-IN'));
+
+            $('#Date').html('<strong>Date: </strong> '+ date);
+            $('#Time').html('<strong>Time: </strong> '+ time);
+
+            $('#billingAddress').html(billingAddress);
+            $('#shippingAddress').html(shippingAddress);
+            orderProductsContainer.empty();
+
+
+            // Loop through the orderlines and append details to the container
+            $.each(orderlines, function (index, orderline) {
+                var productDetails = '<div class="order-col">' +
+                    '<div>' + orderline.quantity + 'x ' + orderline.product_name.slice(0,30) + '</div>' +
+                    '<div><strong>'+ orderline.product_price.toLocaleString('en-IN')
+                        + '</strong></div>' +
+                    '</div>';
+                orderProductsContainer.append(productDetails);
+            });
+        }
+    });
+</script>
+
 
 {% endblock %}

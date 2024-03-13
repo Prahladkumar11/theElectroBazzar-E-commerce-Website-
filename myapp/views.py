@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core import serializers
 from django.http import JsonResponse
 from .models import *
 
@@ -22,7 +23,6 @@ def index(request):
 
         total_price = sum(item.product.discounted_price * item.quantity for item in cart_items)
         total_item=sum(item.quantity for item in cart_items)
-        total_price=round(total_price,2)
     else:
         # For non-authenticated users, set empty values
         active_cart = None
@@ -62,6 +62,9 @@ def get_updated_cart_items(request):
             active_cart = Cart.objects.get(user=request.user)
         except Cart.DoesNotExist:
             active_cart = Cart.objects.create(user=request.user)
+
+        cart_items = Cart_item.objects.filter(cart=active_cart)
+        total_price = sum(item.product.discounted_price * item.quantity for item in cart_items)
         
         cart_items = Cart_item.objects.filter(cart=active_cart)
         updated_cart_items = [
@@ -77,7 +80,7 @@ def get_updated_cart_items(request):
     else:
         updated_cart_items = []
 
-    return JsonResponse({'cart_items': updated_cart_items})
+    return JsonResponse({'cart_items': updated_cart_items,'total':total_price})
 
 CustomUser = get_user_model()
 def signup(request):
@@ -142,7 +145,7 @@ def addToCart(request, pk):
             cart_item.save()
         from django.db.models import Sum
         cart_quantity = Cart_item.objects.filter(cart=cart).aggregate(Sum('quantity'))['quantity__sum'] or 0
-
+        Wishlist.objects.filter(user=request.user, product_id=pk).delete()
         response_data = {
             'status': 'success',
             'message': 'Item added to cart successfully.',
@@ -172,8 +175,7 @@ def wishlist(request):
     wishlist_items = Wishlist.objects.filter(user=request.user)
     product_ids = wishlist_items.values_list('product_id', flat=True)
     products = Product.objects.filter(id__in=product_ids)
-   
-    
+    index(request)
 
     context = {
         'products': products
@@ -226,7 +228,6 @@ def checkout(request):
     
     return render(request,'checkout.html',context)
 
-from django.core import serializers
 
 @login_required
 def accDetail(request):
@@ -310,12 +311,27 @@ def editShippingaddress(request,pk):
         return JsonResponse({'status': 'error', 'message': str(e)})
 
 def orderPage(request):
-    orders=Order.objects.filter(user=request.user)
+    orders=Order.objects.filter(user=request.user).order_by('-id')
     context={
         'orderdetails':orders
     }
     return render(request,'order.html',context)
 
+def orderdetail(request, id):
+    orderlines = OrderLine.objects.filter(order__orderId=id)
+    
+    response= [
+            {
+                'product_name': item.product.name,
+                'product_price': item.product.discounted_price,
+                'quantity': item.quantity,
+            }
+            for item in orderlines
+        ]
+
+    return JsonResponse({'data': response})
+
+    
 
 def placeorder(request):
     if request.method == "POST":

@@ -96,8 +96,10 @@ class BillingAddress(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return self.first_name + " " + self.last_name + " " + self.user.email + " " + self.user.username + " " + str(self.id)
+        return self.first_name + " " + self.last_name + "-" + self.user.email + "-" + self.address + "-" + self.city +"-"+self.state +"-"+self.country +"-"+self.pincode
+        
     
+
 class ShippingAddress(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100)
@@ -117,19 +119,19 @@ class ShippingAddress(models.Model):
         verbose_name_plural =("ShippingAddresss")
 
     def __str__(self):
-        return self.first_name + " " + self.last_name+" "+ self.user.email + " " + self.user.username
+        return self.first_name + " " + self.last_name + "-" + self.user.email + "-" + self.address + "-" + self.city +"-"+self.state +"-"+self.country +"-"+self.pincode
+        
 
     def get_absolute_url(self):
         return reverse("ShippingAddress_detail", kwargs={"pk": self.pk})
 
 class Order(models.Model):
-    @staticmethod
+    # @staticmethod
     def generate_unique_order_id():
         return str(uuid.uuid4().int)[:5]
-    
     user=models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     orderId = models.CharField(default=generate_unique_order_id, max_length=5, editable=False, unique=True)
-    createdDate=models.DateField(auto_now_add=True ,blank=True,null=True)
+    createdDate=models.DateTimeField(auto_now_add=True ,blank=True,null=True)
     shippingAddress=models.ForeignKey(ShippingAddress , on_delete=models.CASCADE ,blank=True,null=True)
     billingAddress=models.ForeignKey(BillingAddress , on_delete=models.CASCADE,blank=True,null=True)
     amount=models.FloatField(null=True,blank=True)

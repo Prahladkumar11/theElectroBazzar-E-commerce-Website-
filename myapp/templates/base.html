@@ -97,6 +97,7 @@
               <!-- /Wishlist -->
 
               <!-- Cart -->
+              <!-- Your header section or wherever the cart icon is -->
               <div class="dropdown">
                 <a class="cart-dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                   <i class="fa fa-shopping-cart"></i>
@@ -105,45 +106,58 @@
                 </a>
                 <div class="cart-dropdown">
                   <div class="cart-list">
-                      <!-- Cart items will be dynamically added here -->
+                    <!-- Cart items will be dynamically added here -->
                   </div>
                   {% if request.session.total_item %}
-                      <div class="cart-summary">
-                          <small>{{ request.session.cart_items|length }} Item(s) selected</small>
-                          <h5>SUBTOTAL: ₹
-                              <script>formattedPrice({{ request.session.total_price }})</script>
-                          </h5>
-                      </div>
-                      <div class="cart-btns">
-                          <a href="{% url 'checkout' %}">Checkout &nbsp; <i class="fa fa-arrow-circle-right fa-lg"></i></a>
-                      </div>
+                  <div class="cart-summary">
+                    <small>{{ request.session.cart_items|length }} Item(s) selected</small>
+                    <h5>SUBTOTAL: ₹
+                      <script>formattedPrice({{ request.session.total_price }})</script>
+                    </h5>
+                  </div>
+                  <div class="cart-btns">
+                    <a href="{% url 'checkout' %}">Checkout &nbsp; <i class="fa fa-arrow-circle-right fa-lg"></i></a>
+                  </div>
                   {% endif %}
+                </div>
               </div>
-              </div>
+
 
               <script>
                 function deleteCartItem(itemId) {
                   // Get the CSRF token from the cookie
                   const csrftoken = getCookie('csrftoken');
                   console.log('CSRF Token:', csrftoken);
-
+              
                   // Make an AJAX request to delete the cart item
                   $.ajax({
-                    url: '/removeitem/' + itemId + '/',
-                    type: 'DELETE',
-                    headers: {
-                      'X-CSRFToken': csrftoken
-                    },
-                    success: function () {
-                      // Refresh the page or update the cart content
-                      location.reload();
-                    },
-                    error: function (error) {
-                      console.log('Error deleting cart item:', error);
-                    }
+                      url: '/removeitem/' + itemId + '/',
+                      type: 'DELETE',
+                      headers: {
+                          'X-CSRFToken': csrftoken
+                      },
+                      success: function () {
+                        let quantityElement = $('#item-qty' + itemId);
+                        let newQuantity = parseInt(quantityElement.text()) - 1;
+            
+                        // Check if the new quantity is greater than 0
+                        if (newQuantity > 0) {
+                            // If so, update the quantity in the UI
+                            quantityElement.text(newQuantity);
+                        } else {
+                            // If not, remove the entire cart item from the UI
+                            $('#cartItem_' + itemId).remove();
+                        }
+              
+                          // Refresh the page or update the cart content
+                          // location.reload();
+                      },
+                      error: function (error) {
+                          console.log('Error deleting cart item:', error);
+                      }
                   });
-                }
-
+              }
+              
                 // Function to get the CSRF token from the cookie
                 function getCookie(name) {
                   var cookieValue = null;
@@ -162,7 +176,7 @@
                 }
 
 
-                
+
               </script>
 
               <!-- /Cart -->
@@ -215,6 +229,28 @@
     <!-- /MAIN HEADER -->
   </header>
   <!-- /HEADER -->
+
+  <!-- Modal  for msg-->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center" id="dynamicMessageContent">
+        <!-- Dynamic message content goes here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- You can add additional buttons here if needed -->
+      </div>
+    </div>
+  </div>
+</div>
+
 
   {% block content %} {% endblock content %}
 
@@ -342,75 +378,84 @@
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-touchspin/4.3.0/jquery.bootstrap-touchspin.min.js"></script>
 
-    <script>
-      $(document).ready(function() {
-          $('.add-to-cart-btn').click(function(e) {
-              e.preventDefault();
-              var productId = $(this).data('product-id');
-              var itemurl='{% url "additem" pk=0  %}'.replace('0', productId);
-              $.ajax({
-                  type: 'POST',
-                  url: itemurl,
-                  data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',  // Add CSRF token here
-                },
-                  success: function(data) {
-                      if (data.status === 'success') {
-                          // Update cart quantity in the UI
-                          $('.qty').text(data.cart_quantity);
-  
-                          // Show success message (optional)
-                          alert(data.message);
-                      } else {
-                          // Handle error (optional)
-                          alert('Error: ' + data.message);
-                      }
-                  },
-                  error: function(error) {
-                      console.log('Error:', error);
-                  }
-              });
-          });
+  <script>
+    $(document).ready(function () {
+      $('.add-to-cart-btn').click(function (e) {
+        e.preventDefault();
+        var productId = $(this).data('product-id');
+        var itemurl = '{% url "additem" pk=0  %}'.replace('0', productId);
+        $.ajax({
+          type: 'POST',
+          url: itemurl,
+          data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',  // Add CSRF token here
+          },
+          success: function (data) {
+            if (data.status === 'success') {
+              // Update cart quantity in the UI
+              $('.qty').text(data.cart_quantity);
+              var msg= 'Add to Cart'
+              document.getElementById('dynamicMessageContent').innerHTML = '<p>' + msg + '</p>';
+              $('#messageModal').modal('show');
+              setTimeout(() => {
+                $('#messageModal').modal('hide');
+              }, 2000);
+
+              // Show success message (optional)
+            } else {
+              // Handle error (optional)
+
+              alert('Error: ' + data.message);
+            }
+          },
+          error: function (error) {
+            console.log('Error:', error);
+          }
+        });
       });
+    });
   </script>
 
+
   <script>
-    $(document).ready(function() {
-        $('.cart-dropdown-toggle').click(function() {
+    $(document).ready(function () {
+        $('.cart-dropdown-toggle').click(function () {
             // Make an AJAX request to get the updated cart items
             $.ajax({
                 type: 'GET',
                 url: '{% url "get_updated_cart_items" %}',
-                success: function(data) {
+                success: function (data) {
                     // Update the dropdown content with the updated cart items
-                    updateCartDropdown(data.cart_items);
+                    updateCartDropdown(data.cart_items,data.total);
                 },
-                error: function(error) {
+                error: function (error) {
                     console.log('Error:', error);
                 }
             });
         });
 
         // Function to update the cart dropdown content
-        function updateCartDropdown(cartItems) {
+        function updateCartDropdown(cartItems,total) {
             var cartList = $('.cart-list');
             cartList.empty();
-            console.log('hi')
 
             if (cartItems.length > 0) {
                 // Populate the cart list with updated items
-                $.each(cartItems, function(index, item) {
-                    var productWidget = '<div class="product-widget">' +
+                $('.cart-summary').html('<small>'+cartItems.length+' item(s) selected</small><h5> SUBTOTAL: ₹'+total.toLocaleString('en-IN')+'</h5>');
+
+                $.each(cartItems, function (index, item) {
+                    var productWidget = '<div class="product-widget" id="cartItem_' + item.id +'">' +
                         '<div class="product-img"><img src="' + item.product_image + '" alt="" /></div>' +
                         '<div class="product-body">' +
                         '<h3 class="product-name"><a href="#">' + item.product_name.slice(0, 50) + '</a></h3>' +
-                        '<h4 class="product-price"><span class="">' + item.quantity + ' x </span>₹' +
-                        formattedPrice(item.product_price )+'</h4></div>' +
+                        '<h4 class="product-price"><span class="" id="item-qty'+item.id+'">' + item.quantity + '  </span> x ₹' +
+                        item.product_price.toLocaleString('en-IN') + '</h4></div>' +
                         '<button class="delete" onclick="deleteCartItem(' + item.id + ')"><i class="fa fa-close"></i></button></div>';
                     cartList.append(productWidget);
                 });
             } else {
                 // Display a message if the cart is empty
+
                 cartList.append('<div class="d-flex align-items-center justify-content-center">' +
                     '<h4>Cart is Empty</h4></div>');
             }
