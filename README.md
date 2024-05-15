@@ -4,6 +4,11 @@
 
 This is a Django-based e-commerce project that allows users to browse products, add them to their cart, place orders, manage their accounts, and more.
 ## Demo
+
+
+https://github.com/Prahladkumar11/theElectroBazzar-E-commerce-Website-/assets/96491878/9a4fb5f6-7456-4d18-bfe4-ae857a99bbfe
+
+
 <img width="893" alt="Screenshot 2024-05-15 211823" src="https://github.com/Prahladkumar11/theElectroBazzar-E-commerce-Website-/assets/96491878/77ce123b-afae-42c4-be00-e3858d74699f">
 <img width="911" alt="Screenshot 2024-05-15 211743" src="https://github.com/Prahladkumar11/theElectroBazzar-E-commerce-Website-/assets/96491878/9b74b515-f9be-4188-a35b-14339a49bf06">
 
