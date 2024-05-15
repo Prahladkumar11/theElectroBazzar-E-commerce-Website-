@@ -23,7 +23,7 @@ This is a Django-based e-commerce project that allows users to browse products, 
    ```bash
     python -m venv venv
 4.Activate the virtual environment:
-  -On Window:
+-On Window:
   ```bash
       venv\Scripts\activate
 
