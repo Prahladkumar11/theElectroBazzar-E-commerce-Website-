@@ -1,5 +1,5 @@
-from django.shortcuts import render,redirect,HttpResponse
-from django.contrib.auth import authenticate, login, logout,get_user_model
+from django.shortcuts import render, redirect, HttpResponse
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,9 +9,16 @@ from .models import *
 
 
 def index(request):      
-    return render(request,'index.html')
+    """
+    View for rendering the index page.
+    """
+    return render(request, 'index.html')
+
 
 def get_updated_cart_items(request):
+    """
+    View for getting updated cart items for the current user.
+    """
     if request.user.is_authenticated:
         try:
             active_cart = Cart.objects.get(user=request.user)
@@ -21,7 +28,6 @@ def get_updated_cart_items(request):
         cart_items = Cart_item.objects.filter(cart=active_cart)
         total_price = sum(item.product.discounted_price * item.quantity for item in cart_items)
         
-        cart_items = Cart_item.objects.filter(cart=active_cart)
         updated_cart_items = [
             {
                 'id': item.product.id,
@@ -35,10 +41,16 @@ def get_updated_cart_items(request):
     else:
         updated_cart_items = []
 
-    return JsonResponse({'cart_items': updated_cart_items,'total':total_price})
+    return JsonResponse({'cart_items': updated_cart_items, 'total': total_price})
+
 
 CustomUser = get_user_model()
+
+
 def signup(request):
+    """
+    View for user signup.
+    """
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
@@ -59,9 +71,13 @@ def signup(request):
         else:
             messages.error(request, 'Passwords do not match.')
   
-    return render(request,'signup.html')
+    return render(request, 'signup.html')
+
 
 def loginUser(request):
+    """
+    View for user login.
+    """
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -76,19 +92,31 @@ def loginUser(request):
 
     return render(request, 'signup.html')
 
+
 def logoutUser(request):
+    """
+    View for user logout.
+    """
     logout(request)
     return redirect('index')
 
-def Products(request,item):
-    products=Product.objects.filter(CategoriesId__name=item)
+
+def Products(request, item):
+    """
+    View for displaying products based on category.
+    """
+    products = Product.objects.filter(CategoriesId__name=item)
     
-    context={
-        'products':products
+    context = {
+        'products': products
     }
-    return render(request,'product.html',context)
+    return render(request, 'product.html', context)
+
 
 def addToCart(request, pk):
+    """
+    View for adding a product to the cart.
+    """
     product = Product.objects.get(id=pk)
     if request.user.is_authenticated:
         cart = Cart.objects.get_or_create(user=request.user)[0]
@@ -110,6 +138,9 @@ def addToCart(request, pk):
         return JsonResponse({'status': 'error', 'message': 'Pls login first'})
 
 def removeFromCart(request, pk):
+    """
+    View for removing a product from the cart.
+    """
     cart = Cart.objects.get(user=request.user)
     product = Product.objects.get(id=pk)
     cart_item = Cart_item.objects.get(cart=cart, product=product)
@@ -124,6 +155,9 @@ def removeFromCart(request, pk):
 
 @login_required
 def wishlist(request):
+    """
+    View for displaying user's wishlist.
+    """
     wishlist_items = Wishlist.objects.filter(user=request.user)
     product_ids = wishlist_items.values_list('product_id', flat=True)
     products = Product.objects.filter(id__in=product_ids)
@@ -137,6 +171,9 @@ def wishlist(request):
 
 @login_required
 def addTowishlist(request, pk):
+    """
+    View for adding or removing a product to/from the wishlist.
+    """
     product = Product.objects.get(id=pk)
     wishlist, created = Wishlist.objects.get_or_create(user=request.user, product=product)
     if not created:
@@ -149,6 +186,9 @@ def addTowishlist(request, pk):
         return redirect('index')
 
 def removeFromWishlist(request, pk):
+    """
+    View for removing a product from the wishlist.
+    """
     product = Product.objects.get(id=pk)
     wishlist = Wishlist.objects.get(user=request.user, product=product)
     wishlist.delete()
@@ -156,68 +196,76 @@ def removeFromWishlist(request, pk):
     return redirect('wishlist')
 
 def checkout(request):
-    items= Cart_item.objects.filter(cart__user=request.user)
-    user=request.user
+    """
+    View for processing the checkout.
+    """
+    items = Cart_item.objects.filter(cart__user=request.user)
+    user = request.user
     try:
-        billingAddress=BillingAddress.objects.filter(user=user)
-        shippingAddresses=ShippingAddress.objects.filter(user=user)
-        context={
-            'billingAddress':billingAddress,
-            'shippingAddresses':shippingAddresses,
-            'items':items
-            
+        billingAddress = BillingAddress.objects.filter(user=user)
+        shippingAddresses = ShippingAddress.objects.filter(user=user)
+        context = {
+            'billingAddress': billingAddress,
+            'shippingAddresses': shippingAddresses,
+            'items': items
         }
-        
-        
-    except :
-        context={
-            'billingAddress':None,
-            'shippingAddresses':None,
-            'items':items
+    except:
+        context = {
+            'billingAddress': None,
+            'shippingAddresses': None,
+            'items': items
         }
     
-    
-    return render(request,'checkout.html',context)
+    return render(request, 'checkout.html', context)
 
 @login_required
 def accDetail(request):
+    """
+    View for displaying user's account details.
+    """
     index(request)
-    user=request.user
+    user = request.user
     try:
-        billingAddress=BillingAddress.objects.filter(user=user)
-        shippingAddresses=ShippingAddress.objects.filter(user=user)
+        billingAddress = BillingAddress.objects.filter(user=user)
+        shippingAddresses = ShippingAddress.objects.filter(user=user)
         billing_addresses_json = serializers.serialize('json', billingAddress)
         shipping_addresses_json = serializers.serialize('json', shippingAddresses)
 
-        context={
-            'billingAddress':billingAddress,
-            'shippingAddresses':shippingAddresses,
-            'billing_addresses_json':billing_addresses_json,
-            'shipping_addresses_json':shipping_addresses_json
-            
+        context = {
+            'billingAddress': billingAddress,
+            'shippingAddresses': shippingAddresses,
+            'billing_addresses_json': billing_addresses_json,
+            'shipping_addresses_json': shipping_addresses_json
         }
-        
-        
-    except :
-        context={
-            'billingAddress':None,
-            'shippingAddresses':None,
-            "billing_addresses_json":None,
-            "shipping_addresses_json":None
+    except:
+        context = {
+            'billingAddress': None,
+            'shippingAddresses': None,
+            "billing_addresses_json": None,
+            "shipping_addresses_json": None
         }
-    return render(request,'accountDetail.html',context)
+    return render(request, 'accountDetail.html', context)
 
 def deleteBillingaddress(request, pk):
+    """
+    View for deleting a billing address.
+    """
     address = get_object_or_404(BillingAddress, id=pk, user=request.user)
     address.delete()
     return JsonResponse({'status': 'success', 'message': 'Address deleted successfully'})
 
 def deleteshippingaddress(request, pk):
+    """
+    View for deleting a shipping address.
+    """
     address = get_object_or_404(ShippingAddress, id=pk, user=request.user)
     address.delete()
     return JsonResponse({'status': 'success', 'message': 'Address deleted successfully'})
 
 def editBillingaddress(request, pk):
+    """
+    View for editing a billing address.
+    """
     address = get_object_or_404(BillingAddress, id=pk, user=request.user)
 
     try:
@@ -242,6 +290,9 @@ def editBillingaddress(request, pk):
         return JsonResponse({'status': 'error', 'message': str(e)})
 
 def editShippingaddress(request,pk):
+    """
+    View for editing a shipping address.
+    """
     address = get_object_or_404(ShippingAddress, id=pk, user=request.user)
     try:
         if request.method == 'POST':
@@ -259,29 +310,39 @@ def editShippingaddress(request,pk):
             return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
-
 def orderPage(request):
-    orders=Order.objects.filter(user=request.user).order_by('-id')
-    context={
-        'orderdetails':orders
+    """
+    View for rendering the order page for the current user.
+    """
+    orders = Order.objects.filter(user=request.user).order_by('-id')
+    context = {
+        'orderdetails': orders
     }
-    return render(request,'order.html',context)
+    return render(request, 'order.html', context)
+
 
 def orderdetail(request, id):
+    """
+    View for getting order details for a specific order.
+    """
     orderlines = OrderLine.objects.filter(order__orderId=id)
     
-    response= [
-            {
-                'product_name': item.product.name,
-                'product_price': item.product.discounted_price,
-                'quantity': item.quantity,
-            }
-            for item in orderlines
-        ]
+    response = [
+        {
+            'product_name': item.product.name,
+            'product_price': item.product.discounted_price,
+            'quantity': item.quantity,
+        }
+        for item in orderlines
+    ]
 
     return JsonResponse({'data': response})   
 
+
 def placeorder(request):
+    """
+    View for placing an order.
+    """
     if request.method == "POST":
         # Get billing address data
         First_Name = request.POST.get('first-name')
@@ -332,7 +393,7 @@ def placeorder(request):
             s_City = City
             s_State = State
             s_Country = Country
-            s_Pincode =Pincode
+            s_Pincode = Pincode
             
             
         shipping_address, created2 = ShippingAddress.objects.get_or_create(
@@ -362,11 +423,15 @@ def placeorder(request):
     response_data = {'status': 'failure', 'message': 'Failed to place the order. Something unexplected'}
     return JsonResponse(response_data)
 
-def order(request,bid,sid):
+
+def order(request, bid, sid):
+    """
+    Helper function for placing an order.
+    """
     print("sid",sid,"bid",bid)
     try:
-        ship=ShippingAddress.objects.get(id=sid)
-        bill=BillingAddress.objects.get(id=bid)
+        ship = ShippingAddress.objects.get(id=sid)
+        bill = BillingAddress.objects.get(id=bid)
         items = Cart_item.objects.filter(cart__user=request.user)
         total_price = sum(item.product.discounted_price * item.quantity for item in items)
         
@@ -374,14 +439,16 @@ def order(request,bid,sid):
         for i in items:
             order_item = OrderLine.objects.create(order=order, product=i.product, quantity=i.quantity)
             
-        return JsonResponse({'status':True})
+        return JsonResponse({'status': True})
     except Exception as e:
-        print("Error occured",e)
+        print("Error occured", e)
         return HttpResponse(status=500)
 
-    
-    
+
 def change_password(request):
+    """
+    View for changing user's password.
+    """
     if request.method == 'POST':
         oldpsd = request.POST.get('oldpsd')
         newpsd = request.POST.get('newpsd')
@@ -410,8 +477,11 @@ def change_password(request):
         except Exception as e:
             return JsonResponse({'status':"fail",'message': str(e)})
 
-    
+
 def editdetail(request):
+    """
+    View for editing user's details.
+    """
     try:
         first_name = request.POST.get("first-name")
         last_name = request.POST.get("last-name")
@@ -431,6 +501,9 @@ def editdetail(request):
 
 
 def searchPage(request):
+    """
+    View for rendering the search page.
+    """
     category_id = int(request.GET.get('category'))
     search_query = request.GET.get('search')
 
@@ -441,7 +514,11 @@ def searchPage(request):
         
     return render(request, 'searchpage.html', {'products': products})
 
+
 def productdetail(request, id):
+    """
+    View for rendering the product detail page.
+    """
     product = get_object_or_404(Product, pk=id)
     relatedProduct = Product.objects.filter(CategoriesId=product.CategoriesId).exclude(pk=product.pk)[:4]
     context={
@@ -449,6 +526,6 @@ def productdetail(request, id):
         'relatedProduct':relatedProduct
     }
     return render(request,"productDetail.html",context)
-    
+   
     
     
