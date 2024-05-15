@@ -42,7 +42,7 @@
 						<div class="col-md-3 col-xs-6">
 							<div class="shop">
 								<div class="shop-img">
-									<img src={{Category.get_imageURL}} alt="" >
+									<img src={{Category.get_imageURL}} alt="" height="200px">
 								</div>
 								<div class="shop-body">
 									<h3>{{Category.name}}<br>Collection</h3>
@@ -105,7 +105,7 @@
 												</div>
 												<div class="product-body">
 													<p class="product-category">{{ product.CategoriesId }}</p>
-													<h3 class="product-name" style="height: 120px;"><a href="#">{{ product.name|slice:":200" }}</a></h3>
+													<h3 class="product-name" style="height: 120px;"><a href="{% url 'productDetail' product.id %}">{{ product.name|slice:":200" }}</a></h3>
 													<h4 class="product-price">₹ <script>formattedPrice({{ product.discounted_price }}) </script>{% if product.discount %}<del class="product-old-price">  <script>formattedPrice({{ product.price }})</script></del>{% endif %} </h4>
 
 													<div class="product-rating">

@@ -167,7 +167,7 @@
 									<div class="order-col">
 											
 										<div>{{item.quantity}}x {{item.product.name|slice:":20"}}</div>
-										<div><script> formattedPrice({{item.product.discounted_price}})</script></div>
+										<div><script> formattedPrice({{item.product.discounted_price}}*{{item.quantity}})</script></div>
 									</div>
 									{% endfor %}
 									

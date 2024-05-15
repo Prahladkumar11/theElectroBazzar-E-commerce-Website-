@@ -42,16 +42,42 @@
                         </div>
                     </div>
                     <div class="product-body"  >
-                        <p class="product-category">{{ product.category }}</p>
-                        <h3 class="product-name" style="height: 150px;"><a href="#">{{ product.name|slice:":250" }}</a></h3>
+                        <p class="product-category">{{ product.CategoriesId.name }}</p>
+                        <h3 class="product-name" style="height: 150px;"><a href="{% url 'productDetail' product.id %}">{{ product.name|slice:":250" }}</a></h3>
                         <h4 class="product-price">₹ <script>formattedPrice({{ product.discounted_price }}) </script>{% if product.discount %}<del class="product-old-price">  <script>formattedPrice({{ product.price }})</script></del>{% endif %} </h4>
                         <div class="product-rating">
-                            {% for _ in product.stars %}
-                            <i class="fa fa-star"></i>
-                            {% endfor %}
-                            {% for _ in product.empty_stars %}
-                            <i class="fa fa-star-o"></i>
-                            {% endfor %}
+                            {% if product.rating == 1 %}
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            {% elif product.rating == 2 %}
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            {% elif product.rating == 3 %}
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            {% elif product.rating == 4 %}
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-o"></i>
+                            {% elif product.rating == 5 %}
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                            {% endif %}
+
                         </div>
                         <div class="product-btns">
                             <button class="add-to-wishlist"><a href="{% url 'addtowishlist' product.id %}"><i class="fa fa-heart-o fa-lg"></i></a><span class="tooltipp">add to wishlist</span></button>

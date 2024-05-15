@@ -139,7 +139,7 @@ class Order(models.Model):
     
 
     def __str__(self):
-        return f"{self.user.username} - {self.createdDate}"
+        return f"{self.orderId}- {self.user.username} - {self.createdDate}"
     
 class OrderLine(models.Model):
     order=models.ForeignKey(Order, on_delete=models.CASCADE)

@@ -150,12 +150,12 @@
 	var priceSlider = document.getElementById('price-slider');
 	if (priceSlider) {
 		noUiSlider.create(priceSlider, {
-			start: [1, 999],
+			start: [100, 200000],
 			connect: true,
 			step: 1,
 			range: {
-				'min': 1,
-				'max': 999
+				'min': 100,
+				'max': 200000
 			}
 		});
 
@@ -168,43 +168,3 @@
 })(jQuery);
 
 
-
-$(document).ready(function () {
-        // Function to handle modal submission
-        function handleModalSubmission(formId, modalId, successMessageId) {
-            $(formId).submit(function (event) {
-                event.preventDefault();
-
-                $.ajax({
-                    type: "POST",
-                    url: $(this).attr('action'),
-                    data: $(this).serialize(),
-                    success: function (data) {
-                        if (data.status === "success") {
-                            $(successMessageId).html('<div class="alert alert-success">' + data.message + '</div>');
-                            setTimeout(function () {
-                                $(modalId).modal('hide');
-                                location.reload();
-                            }, 3000);
-                            
-                        } else {
-                            $(successMessageId).html('<div class="alert alert-danger">' + data.message + '</div>');
-                        }
-                    },
-                    error: function (error) {
-                        $(successMessageId).html('<div class="alert alert-danger">' + error + '</div>');
-                        console.log(error);
-                    }
-                });
-            });
-        }
-
-        // Handle Account Details modal
-        handleModalSubmission("#accountDetailsForm", "#editModal3", "#accountDetailsMessage");
-
-        // Handle Password Change modal
-        handleModalSubmission("#passwordChangeForm", "#editModal2", "#passwordChangeMessage");
-
-        // Handle Edit User Details modal
-        handleModalSubmission("#editUserDetailsForm", "#editModal1", "#editUserDetailsMessage");
-    });

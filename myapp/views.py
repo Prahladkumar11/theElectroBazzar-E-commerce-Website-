@@ -11,7 +11,6 @@ from .models import *
 def index(request):      
     return render(request,'index.html')
 
-
 def get_updated_cart_items(request):
     if request.user.is_authenticated:
         try:
@@ -89,7 +88,6 @@ def Products(request,item):
     }
     return render(request,'product.html',context)
 
-
 def addToCart(request, pk):
     product = Product.objects.get(id=pk)
     if request.user.is_authenticated:
@@ -103,7 +101,7 @@ def addToCart(request, pk):
         Wishlist.objects.filter(user=request.user, product_id=pk).delete()
         response_data = {
             'status': 'success',
-            'message': 'Item added to cart successfully.',
+            'message': 'Item Added to Cart.',
             'cart_quantity': cart_quantity,
         }
 
@@ -150,14 +148,12 @@ def addTowishlist(request, pk):
     else:
         return redirect('index')
 
-
 def removeFromWishlist(request, pk):
     product = Product.objects.get(id=pk)
     wishlist = Wishlist.objects.get(user=request.user, product=product)
     wishlist.delete()
     index(request)
     return redirect('wishlist')
-
 
 def checkout(request):
     items= Cart_item.objects.filter(cart__user=request.user)
@@ -182,7 +178,6 @@ def checkout(request):
     
     
     return render(request,'checkout.html',context)
-
 
 @login_required
 def accDetail(request):
@@ -284,9 +279,7 @@ def orderdetail(request, id):
             for item in orderlines
         ]
 
-    return JsonResponse({'data': response})
-
-    
+    return JsonResponse({'data': response})   
 
 def placeorder(request):
     if request.method == "POST":
@@ -374,9 +367,11 @@ def order(request,bid,sid):
     try:
         ship=ShippingAddress.objects.get(id=sid)
         bill=BillingAddress.objects.get(id=bid)
-        item = Cart_item.objects.filter(cart__user=request.user)
-        order = Order.objects.create(user=request.user, shippingAddress=ship, billingAddress=bill,amount=request.session.get('total_price'))
-        for i in item:
+        items = Cart_item.objects.filter(cart__user=request.user)
+        total_price = sum(item.product.discounted_price * item.quantity for item in items)
+        
+        order = Order.objects.create(user=request.user, shippingAddress=ship, billingAddress=bill,amount=total_price)
+        for i in items:
             order_item = OrderLine.objects.create(order=order, product=i.product, quantity=i.quantity)
             
         return JsonResponse({'status':True})
@@ -433,4 +428,27 @@ def editdetail(request):
         return JsonResponse({'status': "success", 'message': 'Profile updated successfully'})
     except Exception as e:
         return JsonResponse({'status': "fail", 'message': str(e)})
-     
+
+
+def searchPage(request):
+    category_id = int(request.GET.get('category'))
+    search_query = request.GET.get('search')
+
+    if category_id:
+        products = Product.objects.filter(CategoriesId=category_id, name__icontains=search_query)
+    else :
+        products = Product.objects.filter(name__icontains=search_query)
+        
+    return render(request, 'searchpage.html', {'products': products})
+
+def productdetail(request, id):
+    product = get_object_or_404(Product, pk=id)
+    relatedProduct = Product.objects.filter(CategoriesId=product.CategoriesId).exclude(pk=product.pk)[:4]
+    context={
+        'product':product,
+        'relatedProduct':relatedProduct
+    }
+    return render(request,"productDetail.html",context)
+    
+    
+    
