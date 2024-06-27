@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core import serializers
 from django.http import JsonResponse
 from .models import *
-
+ 
 
 def index(request):      
     """
@@ -298,7 +298,7 @@ def editShippingaddress(request,pk):
         if request.method == 'POST':
             address.first_name = request.POST['first-name']
             address.last_name = request.POST['last-name']
-            address.email = request.POST['email']
+            address.email = request.POST['editemail']
             address.address = request.POST['address']
             address.city = request.POST['city']
             address.state = request.POST['state']
