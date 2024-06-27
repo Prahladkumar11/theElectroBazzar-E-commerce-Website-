@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import uuid
+import random
 
 class CustomUser(AbstractUser):
     mobile_number = models.CharField(max_length=10, blank=True, null=True)
@@ -128,7 +129,7 @@ class ShippingAddress(models.Model):
 class Order(models.Model):
     # @staticmethod
     def generate_unique_order_id():
-        return str(uuid.uuid4())[:5]
+        return random.randint(10000, 99999)
     user=models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     orderId = models.CharField(default=generate_unique_order_id, max_length=5, editable=False, unique=True)
     createdDate=models.DateTimeField(auto_now_add=True ,blank=True,null=True)
