@@ -2,9 +2,7 @@
 # Exit on error
 set -o errexit
 
-# Ensure the virtual environment is activated
-source /opt/render/project/src/venv/Scripts/activate
-
+source venv/Scripts/activate
 # Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
