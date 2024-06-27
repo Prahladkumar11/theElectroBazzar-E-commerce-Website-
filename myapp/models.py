@@ -9,7 +9,7 @@ class CustomUser(AbstractUser):
     
 
     # def __str__(self):
-    #     return self.username+self.email
+    #     return self.username
 class Categories(models.Model):
     name=models.CharField( max_length=50)
     image=models.ImageField( null=True,blank=False,upload_to='media/img')
