@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-merplt_%q!*o0()m-d=kh!%k&tmn^9v!mlrqgg=b#c8-81e&mn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['theelectrabazzar.onrender.com','127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = 'signup'
 
