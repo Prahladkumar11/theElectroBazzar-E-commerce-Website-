@@ -128,7 +128,7 @@ class ShippingAddress(models.Model):
 class Order(models.Model):
     # @staticmethod
     def generate_unique_order_id():
-        return str(uuid.uuid4().int)[:5]
+        return str(uuid.uuid4())[:5]
     user=models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     orderId = models.CharField(default=generate_unique_order_id, max_length=5, editable=False, unique=True)
     createdDate=models.DateTimeField(auto_now_add=True ,blank=True,null=True)
