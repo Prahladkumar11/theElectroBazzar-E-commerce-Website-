@@ -3,7 +3,7 @@
 set -o errexit
 
 # Ensure the virtual environment is activated
-source /opt/render/project/src/venv/bin/activate
+source /opt/render/project/src/venv/Scripts/activate
 
 # Install dependencies
 pip install --upgrade pip

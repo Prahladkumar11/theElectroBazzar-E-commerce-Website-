@@ -1,7 +1,7 @@
 databases:
   - name: theElectraBazzar_DB
     plan: free
-    databaseName: mysite
+    databaseName: theElectraBazzar_DB
     user: mysite
 
 services:
@@ -10,7 +10,7 @@ services:
     name: theElectraBazzar
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "python -m gunicorn mysite.asgi:application -k uvicorn.workers.UvicornWorker"
+    startCommand: "python -m gunicorn theElectraBazzar.asgi:application -k uvicorn.workers.UvicornWorker"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
